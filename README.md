@@ -16,7 +16,9 @@ This tool uses the **Chudnovsky algorithm** alongside **Binary Splitting** and t
 * **100,000 Digits:** ~0.038 seconds
 * **1,000,000 Digits:** ~0.532 seconds
 * **3,141,592 Digits:** ~2.18 seconds
-* **100,000,000 Digits:** ~168.87 seconds (The "Yorkshire Tea" benchmark)
+* **100,000,000 Digits:** ~168.87 seconds
+* **150,000,000 Digits:** ~293.49 seconds *(Peak RAM: 2.6 GB)*
+* **400,000,000 Digits:** ~882.04 seconds *(Peak RAM: 4.16 GB)*
 
 ## 🛠️ Installation & Prerequisites
 
@@ -40,4 +42,7 @@ Run the compiled executable and enter the number of digits you wish to calculate
 ./pi_cruncher_cpp
 ```
 
-Note: Calculating over 100 million digits requires significant RAM. Watch your system's memory usage with htop to avoid Out-Of-Memory (OOM) crashes!
+💡 Tips for Extreme Benchmarking (>100M Digits)
+Watch your RAM: Calculating hundreds of millions of digits requires significant memory due to the "saw-tooth" memory profile of the recursive binary splitting chunks. Watch your system's memory usage with htop to avoid Out-Of-Memory (OOM) crashes!
+
+Go Headless: For maximum performance and to free up an extra ~500MB of RAM, run this tool over an SSH connection rather than using a desktop GUI environment.
