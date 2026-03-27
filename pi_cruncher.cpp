@@ -32,7 +32,7 @@ std::string get_time_string() {
     return std::string(buf);
 }
 
-BSResult binary_split(unsigned long a, unsigned long b) {
+BSResult binary_split(unsigned long a, unsigned long b, int depth = 0) {
     BSResult res;
     if (b - a == 1) {
         if (a == 0) {
@@ -48,16 +48,20 @@ BSResult binary_split(unsigned long a, unsigned long b) {
     }
 
     unsigned long m = (a + b) / 2;
-    if (b - a > 5000) {
-        auto left_future = std::async(std::launch::async, binary_split, a, m);
-        BSResult right = binary_split(m, b);
+    
+    // The Depth Limiter: Only spawn threads at the top 2 levels of the tree.
+    // This creates exactly 4 parallel workloads for your 4 cores!
+    if (depth < 2) {
+        auto left_future = std::async(std::launch::async, binary_split, a, m, depth + 1);
+        BSResult right = binary_split(m, b, depth + 1);
         BSResult left = left_future.get(); 
         
         res.P = left.P * right.P; res.Q = left.Q * right.Q;
         res.R = right.Q * left.R + left.P * right.R;
     } else {
-        BSResult left = binary_split(a, m);
-        BSResult right = binary_split(m, b);
+        // Run purely sequentially without spawning any more threads
+        BSResult left = binary_split(a, m, depth + 1);
+        BSResult right = binary_split(m, b, depth + 1);
         
         res.P = left.P * right.P; res.Q = left.Q * right.Q;
         res.R = right.Q * left.R + left.P * right.R;
@@ -74,7 +78,7 @@ int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
 
     unsigned long terms = places / 14 + 1;
-    BSResult res = binary_split(0, terms);
+    BSResult res = binary_split(0, terms, 0);
 
     mpf_set_default_prec(places * 3.33 + 10); 
     mpf_class C(10005);
